@@ -1,7 +1,5 @@
 package com.team2.shapes;
 
-import com.team2.Shape;
-
 import java.awt.*;
 
 public class Circle implements Shape {

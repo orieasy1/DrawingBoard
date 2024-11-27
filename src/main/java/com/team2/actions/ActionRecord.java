@@ -1,28 +1,28 @@
 package com.team2.actions;
 
-import com.team2.Shape;
+import com.team2.shapes.Shape;
 
 import java.awt.*;
 
 public class ActionRecord {
     public enum ActionType { ADD, REMOVE, MOVE, COLOR_CHANGE }
     private ActionType type;
-    private com.team2.Shape shape;
+    private Shape shape;
     private Point previousPosition;
     private Color previousColor;
 
-    public ActionRecord(ActionType type, com.team2.Shape shape) {
+    public ActionRecord(ActionType type, Shape shape) {
         this.type = type;
         this.shape = shape;
     }
 
-    public ActionRecord(ActionType type, com.team2.Shape shape, Point previousPosition) {
+    public ActionRecord(ActionType type, Shape shape, Point previousPosition) {
         this.type = type;
         this.shape = shape;
         this.previousPosition = previousPosition;
     }
 
-    public ActionRecord(ActionType type, com.team2.Shape shape, Color previousColor) {
+    public ActionRecord(ActionType type, Shape shape, Color previousColor) {
         this.type = type;
         this.shape = shape;
         this.previousColor = previousColor;

@@ -1,4 +1,4 @@
-package com.team2;
+package com.team2.shapes;
 
 import java.awt.*;
 import java.io.Serializable;

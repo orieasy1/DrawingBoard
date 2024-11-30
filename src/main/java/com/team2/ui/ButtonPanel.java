@@ -68,8 +68,7 @@ public class ButtonPanel extends JPanel {
 
         return topPanel;
     }
-
-
+    
     // 도구 패널 생성
     private JPanel createToolPanel(Canvas canvas) {
         JPanel toolPanel = new JPanel(new GridBagLayout()); // GridBagLayout 사용
@@ -165,9 +164,7 @@ public class ButtonPanel extends JPanel {
 
         return toolPanel;
     }
-
-
-
+    
     // 구분선 생성 메서드
     private JSeparator createSeparator() {
         JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
@@ -175,8 +172,7 @@ public class ButtonPanel extends JPanel {
         separator.setForeground(Color.BLACK); // 구분선 색상 진하게
         return separator;
     }
-
-
+    
     // 공용 버튼 생성 메서드 -> 해당 부분 이미지 나오게 수정
     private JButton createButton(String text, String imagePath, ActionListener action, boolean isSmall) {
         JButton button = new JButton();
@@ -221,9 +217,7 @@ public class ButtonPanel extends JPanel {
 
         return button;
     }
-
-
-
+    
     // 동그란 버튼 클래스
     static class RoundButton extends JButton {
         public RoundButton(Color color) {

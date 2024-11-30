@@ -15,8 +15,14 @@ public class ButtonPanel extends JPanel {
         // 아래쪽 도구 버튼들
         JPanel toolPanel = createToolPanel(canvas);
 
+        // 구분선 생성 (TopPanel과 ToolPanel 사이)
+        JSeparator horizontalSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+        horizontalSeparator.setPreferredSize(new Dimension(0, 6)); // 높이 6px로 설정 (더 굵게)
+        horizontalSeparator.setForeground(Color.BLACK); // 구분선 색상 진하게
+
         add(topPanel, BorderLayout.NORTH); // 상단 메뉴 및 Undo/Redo 버튼
-        add(toolPanel, BorderLayout.CENTER); // 하단 도구 버튼들
+        add(horizontalSeparator, BorderLayout.CENTER); // 구분선 추가
+        add(toolPanel, BorderLayout.SOUTH); // 하단 도구 버튼들
     }
 
     // 상단 패널 생성
@@ -77,23 +83,51 @@ public class ButtonPanel extends JPanel {
             colorToolPanel.add(colorButton);
         }
 
-        // 각 세트를 toolPanel에 추가 (크기 조정)
+        // 각 세트를 toolPanel에 추가 (크기 조정 및 간격 설정)
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 0.5; // editToolPanel이 더 넓게 차지
         gbc.weighty = 1.0;
+
+        // 첫 번째 패널 (Edit Tool Panel)
+        gbc.weightx = 0.5;
         gbc.gridx = 0;
+        gbc.insets = new Insets(0, 0, 0, 10); // 오른쪽 간격
         toolPanel.add(editToolPanel, gbc);
 
-        gbc.weightx = 0.3; // drawingToolPanel이 적게 차지
+        // 구분선 추가 (Edit Tool Panel과 Drawing Tool Panel 사이)
+        gbc.weightx = 0.0;
         gbc.gridx = 1;
+        gbc.insets = new Insets(0, 10, 0, 10); // 좌우 간격
+        toolPanel.add(createSeparator(), gbc);
+
+        // 두 번째 패널 (Drawing Tool Panel)
+        gbc.weightx = 0.3;
+        gbc.gridx = 2;
+        gbc.insets = new Insets(0, 10, 0, 10); // 좌우 간격
         toolPanel.add(drawingToolPanel, gbc);
 
-        gbc.weightx = 0.2; // colorToolPanel이 가장 적게 차지
-        gbc.gridx = 2;
+        // 구분선 추가 (Drawing Tool Panel과 Color Tool Panel 사이)
+        gbc.weightx = 0.0;
+        gbc.gridx = 3;
+        gbc.insets = new Insets(0, 10, 0, 10); // 좌우 간격
+        toolPanel.add(createSeparator(), gbc);
+
+        // 세 번째 패널 (Color Tool Panel)
+        gbc.weightx = 0.2;
+        gbc.gridx = 4;
+        gbc.insets = new Insets(0, 10, 0, 0); // 왼쪽 간격
         toolPanel.add(colorToolPanel, gbc);
 
         return toolPanel;
     }
+
+    // 구분선 생성 메서드
+    private JSeparator createSeparator() {
+        JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+        separator.setPreferredSize(new Dimension(6, 0)); // 폭 6px로 설정 (더 굵게)
+        separator.setForeground(Color.BLACK); // 구분선 색상 진하게
+        return separator;
+    }
+
 
     // 공용 버튼 생성 메서드
     private JButton createButton(String text, ActionListener action) {

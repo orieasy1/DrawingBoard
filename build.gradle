@@ -12,6 +12,15 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // FlatLaf 의존성 예제
+    implementation 'com.formdev:flatlaf:3.1'
+
+    // MigLayout 의존성 예제
+    implementation 'com.miglayout:miglayout-swing:11.0'
+
+    // JFoenix 의존성 (선택 사항)
+    implementation 'com.jfoenix:jfoenix:9.0.10'
 }
 
 test {

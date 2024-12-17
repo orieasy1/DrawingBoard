@@ -23,10 +23,12 @@ public class Canvas extends JPanel {
     private Shape currentShape = null;
     private String currentMode = "Select";
     private Color currentColor = Color.BLACK;
+    private com.team2.shapes.Rectangle selectionBox = null;
+    private Point dragStart = null;
 
     public Canvas(UndoRedo undoRedo) {
         //this.undoRedo = undoRedo;
-        this.undoRedo = new UndoRedo();  // Canvas 참조 없이 생성
+        this.undoRedo = new UndoRedo();
         this.undoRedo.setCanvas(this);
         setBackground(Color.WHITE);
         initializeMouseListeners();
@@ -64,18 +66,15 @@ public class Canvas extends JPanel {
     }
 
     private void handleMousePressed(MouseEvent e) {
+        dragStart = new Point(e.getX(), e.getY());
         switch (currentMode) {
             case "Circle" -> currentShape = new Circle(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Rectangle" -> currentShape = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Line" -> currentShape = new Line(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
-            case "Select" -> handleSelection(e.getX(), e.getY());
-        }
-    }
-
-    private void handleMouseReleased() {
-        if (currentShape != null) {
-            addShape(currentShape, true);
-            currentShape = null;
+            case "Select" -> {
+                selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                selectedShapes.clear();
+            }
         }
     }
 
@@ -84,9 +83,29 @@ public class Canvas extends JPanel {
             currentShape.setX2(e.getX());
             currentShape.setY2(e.getY());
             repaint();
+        } else if (currentMode.equals("Select") && selectionBox != null) {
+            selectionBox.setX2(e.getX());
+            selectionBox.setY2(e.getY());
+            repaint();
         }
     }
 
+    private void handleMouseReleased() {
+        if (currentShape != null) {
+            addShape(currentShape, true);
+            currentShape = null;
+        } else if (currentMode.equals("Select") && selectionBox != null) {
+            selectedShapes.clear();
+
+            for (Shape shape : shapes) {
+                if (selectionBox.intersects(shape)) {
+                    selectedShapes.add(shape);
+                }
+            }
+            selectionBox = null;
+            repaint();
+        }
+    }
     public void addShape(Shape shape, boolean recordAction) {
         shapes.add(shape);
         if (recordAction) {
@@ -174,7 +193,20 @@ public class Canvas extends JPanel {
             shape.draw(g);
         }
 
-        // Highlight selected shapes
+        // Draw selection box if active
+        if (selectionBox != null) {
+            Graphics2D g2d = (Graphics2D) g;
+            selectionBox.draw(g2d);
+            g2d.setColor(Color.BLUE);
+            g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
+                    0, new float[]{3}, 0));
+            g2d.drawRect(
+                    Math.min(selectionBox.getX1(), selectionBox.getX2()),
+                    Math.min(selectionBox.getY1(), selectionBox.getY2()),
+                    Math.abs(selectionBox.getX2() - selectionBox.getX1()),
+                    Math.abs(selectionBox.getY2() - selectionBox.getY1())
+            );
+        }
         g.setColor(Color.RED);
         for (Shape shape : selectedShapes) {
             g.drawRect(shape.getX1() - 5, shape.getY1() - 5, 10, 10);

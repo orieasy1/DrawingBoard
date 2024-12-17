@@ -37,7 +37,7 @@ public class UndoRedo {
                     System.out.println("rm");
                     break;
                 case COLOR_CHANGE:
-                    action.getShape().setColor(action.getPreviousColor());  // 이전 색상으로 되돌림
+                    action.getShape().setColor(action.getPreviousColor());
                     canvas.repaint();
                     break;
                 case MOVE:
@@ -61,11 +61,11 @@ public class UndoRedo {
                     canvas.removeShape(action.getShape(), false);
                     break;
                 case COLOR_CHANGE:
-                    action.getShape().setColor(action.getNewColor());  // 새로운 색상으로 변경
+                    action.getShape().setColor(action.getNewColor());
                     canvas.repaint();
                     break;
                 case MOVE:
-                    action.getShape().moveTo(action.getNewPosition());  // 새로운 위치로 변경
+                    action.getShape().moveTo(action.getNewPosition());
                     canvas.repaint();
                     break;
             }

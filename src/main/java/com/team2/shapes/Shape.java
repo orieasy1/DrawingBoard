@@ -15,7 +15,6 @@ public interface Shape extends Serializable {
     int getY1();
     int getX2();
     int getY2();
-    public void moveBy(int dx, int dy); // 상대 이동
-    public void moveTo(Point p);        // 절대 위치로 이동
-
+    public void moveBy(int dx, int dy);
+    public void moveTo(Point p);       
 }

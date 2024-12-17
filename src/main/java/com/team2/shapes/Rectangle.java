@@ -63,9 +63,30 @@ public class Rectangle implements Shape {
 
     @Override
     public Rectangle getBoundingBox() {
-        int width = Math.abs(x2 - x1);
-        int height = Math.abs(y2 - y1);
-        return new Rectangle(Math.min(x1, x2), Math.min(y1, y2), width, height);
+        return new Rectangle(
+                Math.min(getX1(), getX2()),
+                Math.min(getY1(), getY2()),
+                Math.abs(getX2() - getX1()),
+                Math.abs(getY2() - getY1())
+        );
+    }
+    // Rectangle 클래스에 추가
+    public boolean intersects(Shape other) {
+        int thisLeft = Math.min(getX1(), getX2());
+        int thisRight = Math.max(getX1(), getX2());
+        int thisTop = Math.min(getY1(), getY2());
+        int thisBottom = Math.max(getY1(), getY2());
+
+        int otherLeft = Math.min(other.getX1(), other.getX2());
+        int otherRight = Math.max(other.getX1(), other.getX2());
+        int otherTop = Math.min(other.getY1(), other.getY2());
+        int otherBottom = Math.max(other.getY1(), other.getY2());
+
+        // 두 사각형이 겹치지 않는 경우를 체크
+        return !(thisLeft > otherRight ||
+                thisRight < otherLeft ||
+                thisTop > otherBottom ||
+                thisBottom < otherTop);
     }
 }
 

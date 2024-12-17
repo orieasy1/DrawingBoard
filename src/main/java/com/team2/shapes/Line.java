@@ -53,8 +53,12 @@ public class Line implements Shape {
 
     @Override
     public Rectangle getBoundingBox() {
-        return new Rectangle(Math.min(x1, x2), Math.min(y1, y2),
-                Math.abs(x2 - x1), Math.abs(y2 - y1), Color.BLACK);
+        return new Rectangle(
+                Math.min(getX1(), getX2()),
+                Math.min(getY1(), getY2()),
+                Math.abs(getX2() - getX1()),
+                Math.abs(getY2() - getY1())
+        );
     }
 }
 

@@ -8,7 +8,7 @@ public interface Shape extends Serializable {
     void setX2(int x2);
     void setY2(int y2);
     boolean contains(int x, int y);
-    java.awt.Rectangle getBoundingBox(); // 반환 타입을 명시적으로 java.awt.Rectangle로 변경
+    Rectangle getBoundingBox();
     void setColor(Color color);
     Color getColor();
     int getX1();

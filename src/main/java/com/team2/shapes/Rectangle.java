@@ -14,6 +14,14 @@ public class Rectangle implements Shape {
         this.color = color;
     }
 
+    public Rectangle(int x1, int y1, int x2, int y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.color = Color.BLACK;
+    }
+
     public void setX2(int x2) { this.x2 = x2; }
     public void setY2(int y2) { this.y2 = y2; }
     public void setColor(Color color) { this.color = color; }
@@ -54,10 +62,10 @@ public class Rectangle implements Shape {
     }
 
     @Override
-    public java.awt.Rectangle getBoundingBox() {
+    public Rectangle getBoundingBox() {
         int width = Math.abs(x2 - x1);
         int height = Math.abs(y2 - y1);
-        return new java.awt.Rectangle(Math.min(x1, x2), Math.min(y1, y2), width, height);
+        return new Rectangle(Math.min(x1, x2), Math.min(y1, y2), width, height);
     }
 }
 

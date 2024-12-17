@@ -17,17 +17,27 @@ import java.util.Stack;
 public class Canvas extends JPanel {
     private final ArrayList<Shape> shapes = new ArrayList<>();
     private final ArrayList<Shape> selectedShapes = new ArrayList<>();
-    private final Stack<Shape> undoStack = new Stack<>();
-    private final Stack<Shape> redoStack = new Stack<>();
+//    private final Stack<Shape> undoStack = new Stack<>();
+//    private final Stack<Shape> redoStack = new Stack<>();
     private final UndoRedo undoRedo;
     private Shape currentShape = null;
     private String currentMode = "Select";
     private Color currentColor = Color.BLACK;
 
     public Canvas(UndoRedo undoRedo) {
-        this.undoRedo = undoRedo;
+        //this.undoRedo = undoRedo;
+        this.undoRedo = new UndoRedo();  // Canvas 참조 없이 생성
+        this.undoRedo.setCanvas(this);
         setBackground(Color.WHITE);
         initializeMouseListeners();
+    }
+
+    public void undo() {
+        undoRedo.undo();
+    }
+
+    public void redo() {
+        undoRedo.redo();
     }
 
     private void initializeMouseListeners() {
@@ -82,8 +92,8 @@ public class Canvas extends JPanel {
         if (recordAction) {
             undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.ADD, shape));
         }
-        undoStack.push(shape);
-        redoStack.clear();
+//        undoStack.push(shape);
+//        redoStack.clear();
         repaint();
     }
 
@@ -113,7 +123,10 @@ public class Canvas extends JPanel {
         this.currentColor = color;
         // Update selected shapes if applicable
         for (Shape shape : selectedShapes) {
+            Color previousColor = shape.getColor();
             shape.setColor(color);
+            undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.COLOR_CHANGE, shape, previousColor));
+
         }
         repaint();
     }
@@ -140,8 +153,10 @@ public class Canvas extends JPanel {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()))) {
                 shapes.clear();
                 shapes.addAll((ArrayList<Shape>) ois.readObject());
-                undoStack.clear();
-                redoStack.clear();
+//                undoStack.clear();
+//                redoStack.clear();
+                undoRedo.clearStacks();
+                shapes.addAll((ArrayList<Shape>) ois.readObject());
                 repaint();
                 JOptionPane.showMessageDialog(this, "File loaded successfully!");
             } catch (IOException | ClassNotFoundException e) {

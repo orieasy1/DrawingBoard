@@ -54,10 +54,19 @@ public class ButtonPanel extends JPanel {
         menuBar.add(fileMenu);
 
         // Undo, Redo 버튼
-        JButton undoButton = createButton("", "buttonImages/undo.png",e -> System.out.println("Undo clicked"),false);
+//        JButton undoButton = createButton("", "buttonImages/undo.png",e -> System.out.println("Undo clicked"),false);
+//        ImageIcon undoIcon = new ImageIcon(getClass().getClassLoader().getResource("buttonImages/undo.png"));
+//        undoButton.setIcon(new ImageIcon(undoIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
+//        JButton redoButton = createButton("", "buttonImages/redo.png",e -> System.out.println("Redo clicked"), false);
+//        ImageIcon redoIcon = new ImageIcon(getClass().getClassLoader().getResource("buttonImages/redo.png"));
+//        redoButton.setIcon(new ImageIcon(redoIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
+        JButton undoButton = createButton("", "buttonImages/undo.png",
+                e -> canvas.undo(), false);  // Changed to call canvas.undo()
         ImageIcon undoIcon = new ImageIcon(getClass().getClassLoader().getResource("buttonImages/undo.png"));
         undoButton.setIcon(new ImageIcon(undoIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
-        JButton redoButton = createButton("", "buttonImages/redo.png",e -> System.out.println("Redo clicked"), false);
+
+        JButton redoButton = createButton("", "buttonImages/redo.png",
+                e -> canvas.redo(), false);  // Changed to call canvas.redo()
         ImageIcon redoIcon = new ImageIcon(getClass().getClassLoader().getResource("buttonImages/redo.png"));
         redoButton.setIcon(new ImageIcon(redoIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
 
@@ -172,10 +181,14 @@ public class ButtonPanel extends JPanel {
         separator.setForeground(Color.BLACK); // 구분선 색상 진하게
         return separator;
     }
+
+
     
     // 공용 버튼 생성 메서드 -> 해당 부분 이미지 나오게 수정
     private JButton createButton(String text, String imagePath, ActionListener action, boolean isSmall) {
         JButton button = new JButton();
+
+
 
         // 텍스트 설정 (text가 null 또는 빈 문자열이면 텍스트를 표시하지 않음)
         if (text != null && !text.isEmpty()) {

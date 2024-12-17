@@ -53,9 +53,9 @@ public class Circle implements Shape {
     }
 
     @Override
-    public java.awt.Rectangle getBoundingBox() {
+    public Rectangle getBoundingBox() {
         int diameter = Math.abs(x2 - x1);
-        return new java.awt.Rectangle(Math.min(x1, x2), Math.min(y1, y2), diameter, diameter);
+        return new Rectangle(Math.min(x1, x2), Math.min(y1, y2), diameter, diameter);
     }
 }
 

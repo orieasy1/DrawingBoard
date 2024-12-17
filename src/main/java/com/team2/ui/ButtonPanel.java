@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class ButtonPanel extends JPanel {
+    private JButton groupButton;
 
     public ButtonPanel(Canvas canvas) {
         setLayout(new BorderLayout());
@@ -167,6 +168,19 @@ public class ButtonPanel extends JPanel {
         gbc.gridx = 4;
         gbc.insets = new Insets(0, 10, 0, 0);
         toolPanel.add(colorToolPanel, gbc);
+
+        //Group
+        groupButton = createButton("Group", "buttonImages/group.png", e -> {
+            if (canvas.isGroupActivated()) {
+                canvas.ungroupSelectedShapes();
+                groupButton.setIcon(new ImageIcon(getClass().getClassLoader()
+                        .getResource("buttonImages/group.png")));  // 비활성화된 아이콘
+            } else {
+                canvas.groupSelectedShapes();
+                groupButton.setIcon(new ImageIcon(getClass().getClassLoader()
+                        .getResource("buttonImages/group_activated.png")));  // 활성화된 아이콘
+            }
+        }, false);
 
         return toolPanel;
     }

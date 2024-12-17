@@ -1,11 +1,10 @@
 package com.team2.ui;
 
-import com.team2.shapes.Circle;
-import com.team2.shapes.Line;
-import com.team2.shapes.Rectangle;
-import com.team2.shapes.Shape;
+import com.team2.shapes.*;
 import com.team2.actions.UndoRedo;
 import com.team2.actions.ActionRecord;
+import com.team2.shapes.Rectangle;
+import com.team2.shapes.Shape;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +18,14 @@ public class Canvas extends JPanel {
     private final ArrayList<Shape> selectedShapes = new ArrayList<>();
 //    private final Stack<Shape> undoStack = new Stack<>();
 //    private final Stack<Shape> redoStack = new Stack<>();
+    private boolean isGroupActivated = false;
     private final UndoRedo undoRedo;
     private Shape currentShape = null;
     private String currentMode = "Select";
     private Color currentColor = Color.BLACK;
     private com.team2.shapes.Rectangle selectionBox = null;
     private Point dragStart = null;
+    private boolean isDragging = false;
 
     public Canvas(UndoRedo undoRedo) {
         //this.undoRedo = undoRedo;
@@ -72,8 +73,25 @@ public class Canvas extends JPanel {
             case "Rectangle" -> currentShape = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Line" -> currentShape = new Line(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Select" -> {
-                selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
-                selectedShapes.clear();
+                if (!selectedShapes.isEmpty()) {
+                    // 이미 선택된 도형이 있고, 그 도형을 클릭했다면 드래그 모드
+                    boolean clickedSelected = false;
+                    for (Shape shape : selectedShapes) {
+                        if (shape.contains(e.getX(), e.getY())) {
+                            clickedSelected = true;
+                            isDragging = true;
+                            break;
+                        }
+                    }
+                    if (!clickedSelected) {
+                        // 선택된 도형을 클릭하지 않았다면 새로운 선택 시작
+                        selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                        selectedShapes.clear();
+                    }
+                } else {
+                    // 선택된 도형이 없다면 새로운 선택 시작
+                    selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                }
             }
         }
     }
@@ -83,10 +101,22 @@ public class Canvas extends JPanel {
             currentShape.setX2(e.getX());
             currentShape.setY2(e.getY());
             repaint();
-        } else if (currentMode.equals("Select") && selectionBox != null) {
-            selectionBox.setX2(e.getX());
-            selectionBox.setY2(e.getY());
-            repaint();
+        } else if (currentMode.equals("Select")) {
+            if (isDragging && !selectedShapes.isEmpty()) {
+                // 선택된 도형 이동
+                int dx = e.getX() - dragStart.x;
+                int dy = e.getY() - dragStart.y;
+                for (Shape shape : selectedShapes) {
+                    shape.moveBy(dx, dy);
+                }
+                dragStart = new Point(e.getX(), e.getY());
+                repaint();
+            } else if (selectionBox != null) {
+                // 선택 영역 그리기
+                selectionBox.setX2(e.getX());
+                selectionBox.setY2(e.getY());
+                repaint();
+            }
         }
     }
 
@@ -94,18 +124,39 @@ public class Canvas extends JPanel {
         if (currentShape != null) {
             addShape(currentShape, true);
             currentShape = null;
-        } else if (currentMode.equals("Select") && selectionBox != null) {
-            selectedShapes.clear();
+        } else if (currentMode.equals("Select")) {
+            if (isDragging) {
+                // 도형 이동 종료
+                isDragging = false;
+                // 이동 작업을 UndoRedo 스택에 기록
+                for (Shape shape : selectedShapes) {
+                    Point endPoint = new Point(shape.getX1(), shape.getY1());
+                    undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.MOVE, shape, dragStart, endPoint));
+                }
+            } else if (selectionBox != null) {
+                // 선택 영역으로 도형들 선택
+                selectedShapes.clear();
 
-            for (Shape shape : shapes) {
-                if (selectionBox.intersects(shape)) {
-                    selectedShapes.add(shape);
+                int selectionX = Math.min(selectionBox.getX1(), selectionBox.getX2());
+                int selectionY = Math.min(selectionBox.getY1(), selectionBox.getY2());
+                int selectionWidth = Math.abs(selectionBox.getX2() - selectionBox.getX1());
+                int selectionHeight = Math.abs(selectionBox.getY2() - selectionBox.getY1());
+
+                Rectangle selectionBounds = new Rectangle(
+                        selectionX, selectionY, selectionWidth, selectionHeight, new Color(0, 0, 0, 0));
+
+                for (Shape shape : shapes) {
+                    if (selectionBounds.intersects(shape)) {
+                        selectedShapes.add(shape);
+                    }
                 }
             }
             selectionBox = null;
             repaint();
         }
     }
+
+
     public void addShape(Shape shape, boolean recordAction) {
         shapes.add(shape);
         if (recordAction) {
@@ -216,5 +267,44 @@ public class Canvas extends JPanel {
         if (currentShape != null) {
             currentShape.draw(g);
         }
+    }
+    public void groupSelectedShapes() {
+        if (selectedShapes.size() < 2) return;
+
+        Group group = new Group();
+        for (Shape shape : selectedShapes) {
+            group.addShape(shape);
+            shapes.remove(shape);
+        }
+
+        shapes.add(group);
+        selectedShapes.clear();
+        selectedShapes.add(group);
+        isGroupActivated = true;
+        repaint();
+    }
+    public void ungroupSelectedShapes() {
+        ArrayList<Shape> shapesToRemove = new ArrayList<>();
+        ArrayList<Shape> shapesToAdd = new ArrayList<>();
+
+        for (Shape shape : selectedShapes) {
+            if (shape instanceof Group group && group.isGrouped()) {
+                shapesToRemove.add(shape);
+                shapesToAdd.addAll(group.getShapes());
+                group.setGrouped(false);
+            }
+        }
+
+        shapes.removeAll(shapesToRemove);
+        shapes.addAll(shapesToAdd);
+
+        selectedShapes.clear();
+        selectedShapes.addAll(shapesToAdd);
+        isGroupActivated = false;
+        repaint();
+    }
+
+    public boolean isGroupActivated() {
+        return isGroupActivated;
     }
 }

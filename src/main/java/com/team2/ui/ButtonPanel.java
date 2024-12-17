@@ -85,13 +85,13 @@ public class ButtonPanel extends JPanel {
 
         //Group
         groupButton = createButton("Group", "buttonImages/group.png", e -> {
-            if (canvas.getSelectedShapes().size() >= 2) {  // 2개 이상 선택되었을 때만
+            if (canvas.getSelectedShapes().size() >= 2) {
                 if (canvas.isGroupActivated()) {
                     canvas.ungroupSelectedShapes();
-                    groupButton.setBackground(null);  // 기본 색상으로 돌아가기
+                    groupButton.setBackground(null);  // 배경색으로 활성화 상태 표시
                 } else {
                     canvas.groupSelectedShapes();
-                    groupButton.setBackground(new Color(135, 206, 235));  // 하늘색으로 변경
+                    groupButton.setBackground(new Color(135, 206, 235));  // 하늘색
                 }
             }
         }, false);
@@ -99,8 +99,10 @@ public class ButtonPanel extends JPanel {
         // Selection, Paste, Cut, Group
         JPanel editToolPanel = new JPanel(new GridLayout(1, 4, 10, 0));
         editToolPanel.add(createButton("Selection", "buttonImages/selection.png", e -> canvas.setMode("Select"), false));
-        editToolPanel.add(createButton("Paste", "buttonImages/paste.png", e -> System.out.println("Paste clicked"), false));
-        editToolPanel.add(createButton("Cut", "buttonImages/cut.png", e -> System.out.println("Cut clicked"), false));            editToolPanel.add(groupButton);
+        editToolPanel.add(createButton("Cut", "buttonImages/cut.png", e -> canvas.cut(), false));
+        editToolPanel.add(createButton("Paste", "buttonImages/paste.png", e -> canvas.paste(), false));
+        editToolPanel.add(groupButton);
+
         // Drawing
         JPanel drawingToolPanel = new JPanel(new BorderLayout());
         JPanel drawingButtonPanel = new JPanel(new GridLayout(1, 3, 10, 0));

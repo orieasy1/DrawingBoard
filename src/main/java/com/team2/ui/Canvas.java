@@ -26,6 +26,7 @@ public class Canvas extends JPanel {
     private com.team2.shapes.Rectangle selectionBox = null;
     private Point dragStart = null;
     private boolean isDragging = false;
+    private ArrayList<Shape> clipboard = new ArrayList<>();
 
     public Canvas(UndoRedo undoRedo) {
         //this.undoRedo = undoRedo;
@@ -287,21 +288,28 @@ public class Canvas extends JPanel {
         ArrayList<Shape> shapesToRemove = new ArrayList<>();
         ArrayList<Shape> shapesToAdd = new ArrayList<>();
 
-        for (Shape shape : selectedShapes) {
+
+        for (Shape shape : new ArrayList<>(selectedShapes)) {  // ConcurrentModification 방지를 위한 복사본 사용
             if (shape instanceof Group group) {
-                shapesToRemove.add(shape);
                 shapesToAdd.addAll(group.getShapes());
-                group.setGrouped(false);
+
+                shapesToRemove.add(shape);
             }
         }
 
-        shapes.removeAll(shapesToRemove);
-        shapes.addAll(shapesToAdd);
+        if (!shapesToRemove.isEmpty()) {
 
-        selectedShapes.clear();
-        selectedShapes.addAll(shapesToAdd);
-        isGroupActivated = false;
-        repaint();
+            for (Shape group : shapesToRemove) {
+                shapes.remove(group);
+            }
+
+            shapes.addAll(shapesToAdd);
+            selectedShapes.removeAll(shapesToRemove);
+            selectedShapes.addAll(shapesToAdd);
+
+            isGroupActivated = false;
+            repaint();
+        }
     }
 
     public boolean isGroupActivated() {
@@ -310,4 +318,61 @@ public class Canvas extends JPanel {
     public ArrayList<Shape> getSelectedShapes() {
         return selectedShapes;
     }
+    private Shape cloneShape(Shape shape) {
+        if (shape instanceof Rectangle) {
+            return new Rectangle(
+                    shape.getX1(), shape.getY1(),
+                    shape.getX2(), shape.getY2(),
+                    shape.getColor()
+            );
+        } else if (shape instanceof Circle) {
+            return new Circle(
+                    shape.getX1(), shape.getY1(),
+                    shape.getX2(), shape.getY2(),
+                    shape.getColor()
+            );
+        } else if (shape instanceof Line) {
+            return new Line(
+                    shape.getX1(), shape.getY1(),
+                    shape.getX2(), shape.getY2(),
+                    shape.getColor()
+            );
+        }
+        return null;
+    }
+
+    public void cut() {
+        if (!selectedShapes.isEmpty()) {
+            clipboard.clear();
+            for (Shape shape : selectedShapes) {
+                Shape clonedShape = cloneShape(shape);
+                clipboard.add(clonedShape);
+                undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.REMOVE, shape)); // REMOVE
+            }
+            shapes.removeAll(selectedShapes);
+            selectedShapes.clear();
+            repaint();
+        } else {
+            JOptionPane.showMessageDialog(this, "No shapes selected to cut!");
+        }
+    }
+
+
+    public void paste() {
+        if (!clipboard.isEmpty()) {
+            ArrayList<Shape> pastedShapes = new ArrayList<>();
+            for (Shape shape : clipboard) {
+                Shape newShape = cloneShape(shape);
+                shapes.add(newShape);
+                pastedShapes.add(newShape);
+                undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.ADD, newShape));
+            }
+            selectedShapes.clear();
+            selectedShapes.addAll(pastedShapes);
+            repaint();
+        } else {
+            JOptionPane.showMessageDialog(this, "Clipboard is empty! Nothing to paste.");
+        }
+    }
+
 }

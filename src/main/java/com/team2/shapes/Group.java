@@ -64,7 +64,14 @@ public class Group implements Shape {
 
     @Override
     public Rectangle getBoundingBox() {
-        return null;
+        if (shapes.isEmpty()) return null;
+
+        int minX = getX1();
+        int minY = getY1();
+        int maxX = getX2();
+        int maxY = getY2();
+
+        return new Rectangle(minX, minY, maxX, maxY, Color.BLACK);
     }
 
     @Override

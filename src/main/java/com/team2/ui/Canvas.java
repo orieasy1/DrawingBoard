@@ -1,5 +1,6 @@
 package com.team2.ui;
 
+import com.team2.actions.FileHandler;
 import com.team2.shapes.Circle;
 import com.team2.shapes.Line;
 import com.team2.shapes.Rectangle;
@@ -119,36 +120,24 @@ public class Canvas extends JPanel {
     }
 
     public void saveToFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int option = fileChooser.showSaveDialog(this);
-
-        if (option == JFileChooser.APPROVE_OPTION) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()))) {
-                oos.writeObject(shapes);
-                JOptionPane.showMessageDialog(this, "File saved successfully!");
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Error saving file: " + e.getMessage());
-            }
-        }
+        FileHandler.saveToFile(shapes, this);
     }
 
     public void loadFromFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int option = fileChooser.showOpenDialog(this);
-
-        if (option == JFileChooser.APPROVE_OPTION) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()))) {
-                shapes.clear();
-                shapes.addAll((ArrayList<Shape>) ois.readObject());
-                undoStack.clear();
-                redoStack.clear();
-                repaint();
-                JOptionPane.showMessageDialog(this, "File loaded successfully!");
-            } catch (IOException | ClassNotFoundException e) {
-                JOptionPane.showMessageDialog(this, "Error loading file: " + e.getMessage());
-            }
+        ArrayList<Shape> loadedShapes = FileHandler.loadFromFile(this); // 명확한 타입 사용
+        if (!loadedShapes.isEmpty()) {
+            shapes.clear();
+            shapes.addAll(loadedShapes); // 타입 불일치 오류 해결
+            undoStack.clear();
+            redoStack.clear();
+            repaint();
+        } else {
+            JOptionPane.showMessageDialog(this, "No shapes to load or file is empty.");
         }
     }
+
+
+
 
     @Override
     protected void paintComponent(Graphics g) {

@@ -83,13 +83,24 @@ public class ButtonPanel extends JPanel {
         JPanel toolPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
+        //Group
+        groupButton = createButton("Group", "buttonImages/group.png", e -> {
+            if (canvas.getSelectedShapes().size() >= 2) {  // 2개 이상 선택되었을 때만
+                if (canvas.isGroupActivated()) {
+                    canvas.ungroupSelectedShapes();
+                    groupButton.setBackground(null);  // 기본 색상으로 돌아가기
+                } else {
+                    canvas.groupSelectedShapes();
+                    groupButton.setBackground(new Color(135, 206, 235));  // 하늘색으로 변경
+                }
+            }
+        }, false);
+
         // Selection, Paste, Cut, Group
         JPanel editToolPanel = new JPanel(new GridLayout(1, 4, 10, 0));
-        editToolPanel.add(createButton("Selection", "buttonImages/selection.png", e -> canvas.setMode("Select"), false));      // selection
-        editToolPanel.add(createButton("Paste", "buttonImages/paste.png", e -> System.out.println("Paste clicked"), false));    // paste
-        editToolPanel.add(createButton("Cut", "buttonImages/cut.png", e -> System.out.println("Cut clicked"), false));          // cut
-        editToolPanel.add(createButton("Group", "buttonImages/group.png", e -> System.out.println("Group clicked"), false));    // group
-
+        editToolPanel.add(createButton("Selection", "buttonImages/selection.png", e -> canvas.setMode("Select"), false));
+        editToolPanel.add(createButton("Paste", "buttonImages/paste.png", e -> System.out.println("Paste clicked"), false));
+        editToolPanel.add(createButton("Cut", "buttonImages/cut.png", e -> System.out.println("Cut clicked"), false));            editToolPanel.add(groupButton);
         // Drawing
         JPanel drawingToolPanel = new JPanel(new BorderLayout());
         JPanel drawingButtonPanel = new JPanel(new GridLayout(1, 3, 10, 0));
@@ -169,18 +180,6 @@ public class ButtonPanel extends JPanel {
         gbc.insets = new Insets(0, 10, 0, 0);
         toolPanel.add(colorToolPanel, gbc);
 
-        //Group
-        groupButton = createButton("Group", "buttonImages/group.png", e -> {
-            if (canvas.isGroupActivated()) {
-                canvas.ungroupSelectedShapes();
-                groupButton.setIcon(new ImageIcon(getClass().getClassLoader()
-                        .getResource("buttonImages/group.png")));  // 비활성화된 아이콘
-            } else {
-                canvas.groupSelectedShapes();
-                groupButton.setIcon(new ImageIcon(getClass().getClassLoader()
-                        .getResource("buttonImages/group_activated.png")));  // 활성화된 아이콘
-            }
-        }, false);
 
         return toolPanel;
     }

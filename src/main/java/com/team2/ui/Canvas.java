@@ -288,7 +288,7 @@ public class Canvas extends JPanel {
         ArrayList<Shape> shapesToAdd = new ArrayList<>();
 
         for (Shape shape : selectedShapes) {
-            if (shape instanceof Group group && group.isGrouped()) {
+            if (shape instanceof Group group) {
                 shapesToRemove.add(shape);
                 shapesToAdd.addAll(group.getShapes());
                 group.setGrouped(false);
@@ -306,5 +306,8 @@ public class Canvas extends JPanel {
 
     public boolean isGroupActivated() {
         return isGroupActivated;
+    }
+    public ArrayList<Shape> getSelectedShapes() {
+        return selectedShapes;
     }
 }

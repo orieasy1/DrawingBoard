@@ -221,11 +221,8 @@ public class Canvas extends JPanel {
         if (option == JFileChooser.APPROVE_OPTION) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()))) {
                 shapes.clear();
-                shapes.addAll((ArrayList<Shape>) ois.readObject());
-//                undoStack.clear();
-//                redoStack.clear();
+                shapes.addAll((ArrayList<Shape>) ois.readObject());  // 한 번만 읽기
                 undoRedo.clearStacks();
-                shapes.addAll((ArrayList<Shape>) ois.readObject());
                 repaint();
                 JOptionPane.showMessageDialog(this, "File loaded successfully!");
             } catch (IOException | ClassNotFoundException e) {

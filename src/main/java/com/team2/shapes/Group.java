@@ -35,12 +35,11 @@ public class Group implements Shape {
             shape.draw(g);
         }
     }
-
     @Override
     public void setX2(int x2) {
         int dx = x2 - getX2();
         for (Shape shape : shapes) {
-            shape.setX2(shape.getX2() + dx);
+            shape.moveBy(dx, 0); // Move shapes by delta X
         }
     }
 
@@ -48,7 +47,14 @@ public class Group implements Shape {
     public void setY2(int y2) {
         int dy = y2 - getY2();
         for (Shape shape : shapes) {
-            shape.setY2(shape.getY2() + dy);
+            shape.moveBy(0, dy); // Move shapes by delta Y
+        }
+    }
+
+    @Override
+    public void moveBy(int dx, int dy) {
+        for (Shape shape : shapes) {
+            shape.moveBy(dx, dy); // Move all child shapes
         }
     }
 
@@ -66,14 +72,20 @@ public class Group implements Shape {
     public Rectangle getBoundingBox() {
         if (shapes.isEmpty()) return null;
 
-        int minX = getX1();
-        int minY = getY1();
-        int maxX = getX2();
-        int maxY = getY2();
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+
+        for (Shape shape : shapes) {
+            minX = Math.min(minX, shape.getX1());
+            minY = Math.min(minY, shape.getY1());
+            maxX = Math.max(maxX, shape.getX2());
+            maxY = Math.max(maxY, shape.getY2());
+        }
 
         return new Rectangle(minX, minY, maxX, maxY, Color.BLACK);
     }
-
     @Override
     public void setColor(Color color) {
         for (Shape shape : shapes) {
@@ -124,13 +136,6 @@ public class Group implements Shape {
             maxY = Math.max(maxY, Math.max(shape.getY1(), shape.getY2()));
         }
         return maxY;
-    }
-
-    @Override
-    public void moveBy(int dx, int dy) {
-        for (Shape shape : shapes) {
-            shape.moveBy(dx, dy);
-        }
     }
 
     @Override

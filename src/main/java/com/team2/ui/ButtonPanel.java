@@ -88,10 +88,12 @@ public class ButtonPanel extends JPanel {
             if (canvas.getSelectedShapes().size() >= 2) {
                 if (canvas.isGroupActivated()) {
                     canvas.ungroupSelectedShapes();
-                    groupButton.setBackground(null);  // 배경색으로 활성화 상태 표시
+                    groupButton.setBackground(null);
+                    System.out.println("Ungroup triggered");
                 } else {
                     canvas.groupSelectedShapes();
-                    groupButton.setBackground(new Color(135, 206, 235));  // 하늘색
+                    groupButton.setBackground(new Color(135, 206, 235));
+                    System.out.println("Group triggered");
                 }
             }
         }, false);

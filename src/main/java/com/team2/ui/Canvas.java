@@ -16,8 +16,6 @@ import java.util.Stack;
 public class Canvas extends JPanel {
     private final ArrayList<Shape> shapes = new ArrayList<>();
     private final ArrayList<Shape> selectedShapes = new ArrayList<>();
-//    private final Stack<Shape> undoStack = new Stack<>();
-//    private final Stack<Shape> redoStack = new Stack<>();
     private boolean isGroupActivated = false;
     private final UndoRedo undoRedo;
     private Shape currentShape = null;
@@ -269,47 +267,69 @@ public class Canvas extends JPanel {
             currentShape.draw(g);
         }
     }
+
     public void groupSelectedShapes() {
-        if (selectedShapes.size() < 2) return;
+
+        if (selectedShapes.size() < 2) {
+            return;
+        }
+
 
         Group group = new Group();
-        for (Shape shape : selectedShapes) {
-            group.addShape(shape);
+
+
+        for (Shape shape : new ArrayList<>(selectedShapes)) {
             shapes.remove(shape);
+            group.addShape(shape);
         }
 
         shapes.add(group);
         selectedShapes.clear();
         selectedShapes.add(group);
+
         isGroupActivated = true;
+        System.out.println("Group created with " + group.getShapes().size() + " shapes");
         repaint();
     }
+
     public void ungroupSelectedShapes() {
-        ArrayList<Shape> shapesToRemove = new ArrayList<>();
-        ArrayList<Shape> shapesToAdd = new ArrayList<>();
 
-
-        for (Shape shape : new ArrayList<>(selectedShapes)) {  // ConcurrentModification 방지를 위한 복사본 사용
-            if (shape instanceof Group group) {
-                shapesToAdd.addAll(group.getShapes());
-
-                shapesToRemove.add(shape);
+        boolean hasGroup = false;
+        for (Shape shape : selectedShapes) {
+            if (shape instanceof Group) {
+                hasGroup = true;
+                break;
             }
         }
 
-        if (!shapesToRemove.isEmpty()) {
+        if (!hasGroup) {
+            return;
+        }
 
-            for (Shape group : shapesToRemove) {
+        ArrayList<Shape> newShapes = new ArrayList<>();
+
+
+        for (Shape shape : new ArrayList<>(selectedShapes)) {
+            if (shape instanceof Group) {
+
+                Group group = (Group) shape;
+
+                newShapes.addAll(group.getShapes());
+
                 shapes.remove(group);
             }
-
-            shapes.addAll(shapesToAdd);
-            selectedShapes.removeAll(shapesToRemove);
-            selectedShapes.addAll(shapesToAdd);
-
-            isGroupActivated = false;
-            repaint();
         }
+
+
+        shapes.addAll(newShapes);
+
+
+        selectedShapes.clear();
+        selectedShapes.addAll(newShapes);
+
+        isGroupActivated = false;
+        System.out.println("Ungroup completed. New shapes: " + newShapes.size()); // 디버깅용
+        repaint();
     }
 
     public boolean isGroupActivated() {
@@ -318,6 +338,7 @@ public class Canvas extends JPanel {
     public ArrayList<Shape> getSelectedShapes() {
         return selectedShapes;
     }
+
     private Shape cloneShape(Shape shape) {
         if (shape instanceof Rectangle) {
             return new Rectangle(
@@ -337,6 +358,12 @@ public class Canvas extends JPanel {
                     shape.getX2(), shape.getY2(),
                     shape.getColor()
             );
+        } else if (shape instanceof Group) {
+            Group groupClone = new Group();
+            for (Shape child : ((Group) shape).getShapes()) {
+                groupClone.addShape(cloneShape(child)); // Recursively clone child shapes
+            }
+            return groupClone;
         }
         return null;
     }
@@ -345,9 +372,9 @@ public class Canvas extends JPanel {
         if (!selectedShapes.isEmpty()) {
             clipboard.clear();
             for (Shape shape : selectedShapes) {
-                Shape clonedShape = cloneShape(shape);
+                Shape clonedShape = cloneShape(shape); // Clone before removing
                 clipboard.add(clonedShape);
-                undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.REMOVE, shape)); // REMOVE
+                undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.REMOVE, shape));
             }
             shapes.removeAll(selectedShapes);
             selectedShapes.clear();
@@ -357,15 +384,16 @@ public class Canvas extends JPanel {
         }
     }
 
-
     public void paste() {
         if (!clipboard.isEmpty()) {
             ArrayList<Shape> pastedShapes = new ArrayList<>();
             for (Shape shape : clipboard) {
-                Shape newShape = cloneShape(shape);
-                shapes.add(newShape);
-                pastedShapes.add(newShape);
-                undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.ADD, newShape));
+                Shape newShape = cloneShape(shape); // Clone each shape from clipboard
+                if (newShape != null) {
+                    shapes.add(newShape);
+                    pastedShapes.add(newShape);
+                    undoRedo.recordAction(new ActionRecord(ActionRecord.ActionType.ADD, newShape));
+                }
             }
             selectedShapes.clear();
             selectedShapes.addAll(pastedShapes);
@@ -374,5 +402,6 @@ public class Canvas extends JPanel {
             JOptionPane.showMessageDialog(this, "Clipboard is empty! Nothing to paste.");
         }
     }
+
 
 }

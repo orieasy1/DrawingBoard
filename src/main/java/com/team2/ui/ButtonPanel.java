@@ -85,7 +85,7 @@ public class ButtonPanel extends JPanel {
 
         //Group
         groupButton = createButton("Group", "buttonImages/group.png", e -> {
-            if (canvas.getSelectedShapes().size() >= 2) {
+            if (canvas.getSelectedShapes().size() >= 1) {
                 if (canvas.isGroupActivated()) {
                     canvas.ungroupSelectedShapes();
                     groupButton.setBackground(null);

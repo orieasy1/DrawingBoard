@@ -72,48 +72,23 @@ public class Canvas extends JPanel {
             case "Rectangle" -> currentShape = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Line" -> currentShape = new Line(e.getX(), e.getY(), e.getX(), e.getY(), currentColor);
             case "Select" -> {
-                if (!selectedShapes.isEmpty()) {
-                    // 이미 선택된 도형이 있고, 그 도형을 클릭했다면 드래그 모드
-                    boolean clickedSelected = false;
-                    for (Shape shape : selectedShapes) {
-                        if (shape.contains(e.getX(), e.getY())) {
-                            clickedSelected = true;
-                            isDragging = true;
-                            break;
-                        }
+                // 클릭한 위치에 도형이 있는지 먼저 확인
+                boolean clickedShape = false;
+                for (Shape shape : shapes) {
+                    if (shape.contains(e.getX(), e.getY())) {
+                        // 새로운 도형을 클릭했다면 이전 선택을 모두 취소하고 새로 선택
+                        selectedShapes.clear();
+                        selectedShapes.add(shape);
+                        clickedShape = true;
+                        isDragging = true;
+                        break;
                     }
-                    if (!clickedSelected) {
-                        // 선택된 도형을 클릭하지 않았다면 새로운 선택 시작
-                        // 빈 공간 클릭 시 선택 해제
-                        boolean clickedAnyShape = false;
-                        for (Shape shape : shapes) {
-                            if (shape.contains(e.getX(), e.getY())) {
-                                selectedShapes.clear();
-                                selectedShapes.add(shape);
-                                clickedAnyShape = true;
-                                break;
-                            }
-                        }
-                        if (!clickedAnyShape) {
-                            // 도형을 클릭하지 않았다면 드래그 선택 시작
-                            selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
-                            selectedShapes.clear();
-                        }
-                    }
-                } else {
-                    // 선택된 도형이 없을 때
-                    boolean clickedShape = false;
-                    for (Shape shape : shapes) {
-                        if (shape.contains(e.getX(), e.getY())) {
-                            selectedShapes.add(shape);
-                            clickedShape = true;
-                            break;
-                        }
-                    }
-                    if (!clickedShape) {
-                        // 도형을 클릭하지 않았다면 드래그 선택 시작
-                        selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
-                    }
+                }
+
+                if (!clickedShape) {
+                    // 도형을 클릭하지 않았다면 선택 박스 시작
+                    selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                    selectedShapes.clear();
                 }
                 repaint();
             }

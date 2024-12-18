@@ -84,13 +84,38 @@ public class Canvas extends JPanel {
                     }
                     if (!clickedSelected) {
                         // 선택된 도형을 클릭하지 않았다면 새로운 선택 시작
-                        selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
-                        selectedShapes.clear();
+                        // 빈 공간 클릭 시 선택 해제
+                        boolean clickedAnyShape = false;
+                        for (Shape shape : shapes) {
+                            if (shape.contains(e.getX(), e.getY())) {
+                                selectedShapes.clear();
+                                selectedShapes.add(shape);
+                                clickedAnyShape = true;
+                                break;
+                            }
+                        }
+                        if (!clickedAnyShape) {
+                            // 도형을 클릭하지 않았다면 드래그 선택 시작
+                            selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                            selectedShapes.clear();
+                        }
                     }
                 } else {
-                    // 선택된 도형이 없다면 새로운 선택 시작
-                    selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                    // 선택된 도형이 없을 때
+                    boolean clickedShape = false;
+                    for (Shape shape : shapes) {
+                        if (shape.contains(e.getX(), e.getY())) {
+                            selectedShapes.add(shape);
+                            clickedShape = true;
+                            break;
+                        }
+                    }
+                    if (!clickedShape) {
+                        // 도형을 클릭하지 않았다면 드래그 선택 시작
+                        selectionBox = new Rectangle(e.getX(), e.getY(), e.getX(), e.getY(), new Color(0, 0, 255, 50));
+                    }
                 }
+                repaint();
             }
         }
     }
